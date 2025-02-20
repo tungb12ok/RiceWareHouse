@@ -35,3 +35,4 @@ nbproject/project.properties
 nbproject/project.xml
 src/conf/MANIFEST.MF
 web/META-INF/context.xml
+/dist/
