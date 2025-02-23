@@ -1,21 +1,29 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DBContext;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-/**
- *
- * @author Admin
- */
+
 public class DatabaseConnection {
-    private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=RiceWarehouse;encrypt=true;trustServerCertificate=true";
-    private static final String USER = "sa";
+
+    private static final String SERVER_NAME = "localhost";
+    private static final String DB_NAME = "RiceWarehouse";
+    private static final String PORT_NUMBER = "1433";
+    private static final String USER_ID = "sa";
     private static final String PASSWORD = "123456789a@";
 
+    private static final String URL = "jdbc:sqlserver://" + SERVER_NAME + ":" + PORT_NUMBER 
+            + ";databaseName=" + DB_NAME;
+
+    static {
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("SQL Server JDBC Driver not found", e);
+        }
+    }
+
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        return DriverManager.getConnection(URL, USER_ID, PASSWORD);
     }
 }
