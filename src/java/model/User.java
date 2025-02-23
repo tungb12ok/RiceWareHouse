@@ -12,5 +12,6 @@ public class User {
     private String username;
     private String passwordHash;
     private String role;
+    private String email;
     private boolean isBanned;
 }

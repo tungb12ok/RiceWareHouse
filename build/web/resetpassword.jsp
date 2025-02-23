@@ -1,3 +1,10 @@
+<%-- 
+    Document   : resetpassword
+    Created on : Feb 23, 2025, 10:11:33 AM
+    Author     : Admin
+--%>
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -60,3 +67,4 @@
         <script src="js/scripts.js"></script>
     </body>
 </html>
+
