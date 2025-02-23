@@ -27,8 +27,7 @@ public class CustomerDAO extends GenericDAO<Customer> {
     // Method to get customer by ID
     public Customer getCustomerById(int customerId) {
         String query = "SELECT * FROM Customers WHERE CustomerID = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); 
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, customerId);
             ResultSet rs = stmt.executeQuery();
 
@@ -44,36 +43,66 @@ public class CustomerDAO extends GenericDAO<Customer> {
     // Method to add a new customer
     public boolean addCustomer(Customer customer) {
         String query = "INSERT INTO Customers (FullName, Gender, Age, Address, PhoneNumber) VALUES (?, ?, ?, ?, ?)";
-        return executeUpdate(query, 
-                customer.getFullName(), 
-                customer.getGender(), 
-                customer.getAge(), 
-                customer.getAddress(), 
+        return executeUpdate(query,
+                customer.getFullName(),
+                customer.getGender(),
+                customer.getAge(),
+                customer.getAddress(),
                 customer.getPhoneNumber());
     }
 
     // Method to update customer information
     public boolean updateCustomer(Customer customer) {
         String query = "UPDATE Customers SET FullName = ?, Gender = ?, Age = ?, Address = ?, PhoneNumber = ? WHERE CustomerID = ?";
-        return executeUpdate(query, 
-                customer.getFullName(), 
+        return executeUpdate(query,
+                customer.getFullName(),
                 customer.getGender(),
-                customer.getAge(), 
-                customer.getAddress(), 
+                customer.getAge(),
+                customer.getAddress(),
                 customer.getPhoneNumber(),
                 customer.getCustomerId());
     }
 
     // Method to delete customer by ID
     public boolean deleteCustomer(int customerId) {
-        String query = "DELETE FROM Customers WHERE CustomerID = ?";
-        return executeUpdate(query, customerId);
+        // Start a transaction
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);  
+            String deleteHistoryQuery = "DELETE FROM TransactionHistory WHERE CustomerID = ?";
+            try (PreparedStatement psHistory = conn.prepareStatement(deleteHistoryQuery)) {
+                psHistory.setInt(1, customerId);
+                psHistory.executeUpdate();
+            }
+
+            String deleteTransactionsQuery = "DELETE FROM Transactions WHERE CustomerID = ?";
+            try (PreparedStatement psTransactions = conn.prepareStatement(deleteTransactionsQuery)) {
+                psTransactions.setInt(1, customerId);
+                psTransactions.executeUpdate();
+            }
+
+            String deleteCustomerQuery = "DELETE FROM Customers WHERE CustomerID = ?";
+            try (PreparedStatement psCustomer = conn.prepareStatement(deleteCustomerQuery)) {
+                psCustomer.setInt(1, customerId);
+                int affectedRows = psCustomer.executeUpdate();
+
+                if (affectedRows > 0) {
+                    conn.commit();
+                    return true;
+                } else {
+                    conn.rollback();
+                    return false;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // Example usage for testing
     public static void main(String[] args) {
         CustomerDAO customerDAO = new CustomerDAO();
-        
+
         // Testing: Get all customers
         List<Customer> customers = customerDAO.getAllCustomers();
         for (Customer customer : customers) {
