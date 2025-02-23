@@ -161,7 +161,23 @@ public class TransactionDAO extends GenericDAO<Transaction> {
         String query = "DELETE FROM Transactions WHERE TransactionID=?";
         return executeUpdate(query, transactionId);
     }
-
+    
+    //
+    public double getRicePrice(int riceId) {
+        String query = "SELECT Price FROM Rice WHERE RiceID = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, riceId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("Price");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
     // Kiểm tra TransactionDAO
     public static void main(String[] args) {
         TransactionDAO transactionDAO = new TransactionDAO();
