@@ -1,125 +1,125 @@
-<%-- 
-    Document   : admin
-    Created on : Feb 23, 2025, 9:18:01 AM
-    Author     : Admin
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Dashboard - SB Admin</title>
-        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-        <link href="css/styles.css" rel="stylesheet" />
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-    </head>
-    <body>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Transaction Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
 
-        <%@include file="/components/header.jsp"%>
+    <%@include file="/components/header.jsp"%>
 
-        <div id="layoutSidenav">
+    <div id="layoutSidenav">
+        <%@include file="/components/sidebar.jsp"%>
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4">
+                    <h1 class="mt-4">Transaction Management</h1>
 
-            <%@include file="/components/sidebar.jsp"%>
+                    <!-- Search Form -->
+                    <form method="get" action="PaymentController" class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <input type="text" name="customerName" value="${customerName}" class="form-control" placeholder="Search by Customer Name">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="phoneNumber" value="${phoneNumber}" class="form-control" placeholder="Search by Phone Number">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" name="transactionDate" value="${transactionDate}" class="form-control">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
+                        </div>
+                    </form>
 
-            <div id="layoutSidenav_content">
-                <main>
-                    <div class="container-fluid px-4">
-                        <h1 class="mt-4">Owner Dashboard</h1>
-                        <a href="createStaff.jsp" class="btn btn-primary btn-info mb-4">Create Staff</a>
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                <i class="fas fa-table me-1"></i>
-                                Staff Management
-                            </div>
-                            <div class="card-body">
-                                <table id="datatablesSimple">
-                                    <thead>
+                    <!-- Dropdown chọn số bản ghi trên mỗi trang -->
+                    <form method="get" action="PaymentController" class="mb-3">
+                        <label for="pageSize">Records per page:</label>
+                        <select name="pageSize" id="pageSize" class="form-select w-auto d-inline" onchange="this.form.submit()">
+                            <option value="2" ${pageSize == 2 ? 'selected' : ''}>2</option>
+                            <option value="5" ${pageSize == 5 ? 'selected' : ''}>5</option>
+                            <option value="10" ${pageSize == 10 ? 'selected' : ''}>10</option>
+                            <option value="20" ${pageSize == 20 ? 'selected' : ''}>20</option>
+                        </select>
+                        <input type="hidden" name="customerName" value="${customerName}">
+                        <input type="hidden" name="phoneNumber" value="${phoneNumber}">
+                        <input type="hidden" name="transactionDate" value="${transactionDate}">
+                    </form>
+
+                    <div class="card mb-4">
+                        <div class="card-header">Transaction List</div>
+                        <div class="card-body">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Type</th>
+                                        <th>Rice</th>
+                                        <th>Customer</th>
+                                        <th>Phone</th>
+                                        <th>Quantity</th>
+                                        <th>Date</th>
+                                        <th>Porter</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="transaction" items="${transactionList}">
                                         <tr>
-                                            <th>Staff ID</th>
-                                            <th>Full Name</th>
-                                            <th>Phone Number</th>
-                                            <th>Username</th>
-                                            <th>Actions</th>
+                                            <td>${transaction.transactionId}</td>
+                                            <td>${transaction.transactionType}</td>
+                                            <td>${transaction.riceName}</td>
+                                            <td>${transaction.customerName}</td>
+                                            <td>${transaction.phoneNumber}</td>
+                                            <td>${transaction.quantity}</td>
+                                            <td>${transaction.transactionDate}</td>
+                                            <td>${transaction.porterService ? 'Yes' : 'No'}</td>
+                                            <td>${transaction.totalAmount}</td>
                                         </tr>
-                                    </thead>
-                                    <tfoot>
-                                        <tr>
-                                            <th>Staff ID</th>
-                                            <th>Full Name</th>
-                                            <th>Phone Number</th>
-                                            <th>Username</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </tfoot>
-                                    <tbody>
-                                        <c:forEach var="staff" items="${staffList}">
-                                            <tr>
-                                                <td>${staff.staffId}</td>
-                                                <td>${staff.fullName}</td>
-                                                <td>${staff.phoneNumber}</td>
-                                                <td>${staff.username}</td>
-                                                <td>
-                                                    <a href="editStaff?staffId=${staff.staffId}" class="btn btn-primary btn-sm">Edit</a>
-                                                    <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" 
-                                                            onclick="setDeleteUser(${staff.staffId}, '${staff.fullName}')">
-                                                        Delete
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
-                            </div>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </main>
 
-                <!-- Delete Modal -->
-                <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form method="post" action="owner?action=delete">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Are you sure you want to delete the user <strong id="deleteUserName"></strong>?</p>
-                                    <input type="hidden" id="deleteUserId" name="userId">
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
+                    <!-- Phân trang -->
+                    <c:if test="${totalPages > 1}">
+                        <nav>
+                            <ul class="pagination">
+                                <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                    <a class="page-link" href="PaymentController?page=1&pageSize=${pageSize}&customerName=${customerName}&phoneNumber=${phoneNumber}&transactionDate=${transactionDate}">First</a>
+                                </li>
+
+                                <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                    <a class="page-link" href="PaymentController?page=${currentPage - 1}&pageSize=${pageSize}&customerName=${customerName}&phoneNumber=${phoneNumber}&transactionDate=${transactionDate}">Previous</a>
+                                </li>
+
+                                <c:forEach var="i" begin="1" end="${totalPages}">
+                                    <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                        <a class="page-link" href="PaymentController?page=${i}&pageSize=${pageSize}&customerName=${customerName}&phoneNumber=${phoneNumber}&transactionDate=${transactionDate}">${i}</a>
+                                    </li>
+                                </c:forEach>
+
+                                <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                    <a class="page-link" href="PaymentController?page=${currentPage + 1}&pageSize=${pageSize}&customerName=${customerName}&phoneNumber=${phoneNumber}&transactionDate=${transactionDate}">Next</a>
+                                </li>
+
+                                <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                    <a class="page-link" href="PaymentController?page=${totalPages}&pageSize=${pageSize}&customerName=${customerName}&phoneNumber=${phoneNumber}&transactionDate=${transactionDate}">Last</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </c:if>
+
                 </div>
+            </main>
 
-                <%@include file="/components/footer.jsp"%>
-            </div>
+            <%@include file="/components/footer.jsp"%>
         </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <script src="js/scripts.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-        <script src="assets/demo/chart-area-demo.js"></script>
-        <script src="assets/demo/chart-bar-demo.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-        <script src="js/datatables-simple-demo.js"></script>
-        <script>
-
-
-                                                                function setDeleteUser(userId, fullName) {
-                                                                    document.getElementById('deleteUserId').value = userId;
-                                                                    document.getElementById('deleteUserName').textContent = fullName;
-                                                                }
-        </script>
-    </body>
+    </div>
+</body>
 </html>

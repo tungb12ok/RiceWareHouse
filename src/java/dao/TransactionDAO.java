@@ -23,10 +23,59 @@ public class TransactionDAO extends GenericDAO<Transaction> {
         return transaction;
     }
 
+    // Phương thức lấy tổng số giao dịch theo điều kiện tìm kiếm
+    public int getTotalTransactionCount(String customerName, String phoneNumber, String transactionDate) {
+        int total = 0;
+        StringBuilder query = new StringBuilder("""
+                SELECT COUNT(*) FROM Transactions t
+                JOIN Rice r ON t.RiceID = r.RiceID
+                JOIN Customers c ON t.CustomerID = c.CustomerID
+                WHERE 1=1
+                """);
+
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = buildQueryWithParams(query, customerName, phoneNumber, transactionDate, conn); ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next()) {
+                total = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return total;
+    }
+
+    // Xây dựng truy vấn động với tham số
+    private PreparedStatement buildQueryWithParams(StringBuilder query, String customerName, String phoneNumber, String transactionDate, Connection conn) throws SQLException {
+        if (customerName != null && !customerName.trim().isEmpty()) {
+            query.append(" AND c.FullName LIKE ?");
+        }
+        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+            query.append(" AND c.PhoneNumber = ?");
+        }
+        if (transactionDate != null && !transactionDate.trim().isEmpty()) {
+            query.append(" AND CAST(t.TransactionDate AS DATE) = ?");
+        }
+
+        PreparedStatement stmt = conn.prepareStatement(query.toString());
+
+        int index = 1;
+        if (customerName != null && !customerName.trim().isEmpty()) {
+            stmt.setString(index++, "%" + customerName.trim() + "%");
+        }
+        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+            stmt.setString(index++, phoneNumber.trim());
+        }
+        if (transactionDate != null && !transactionDate.trim().isEmpty()) {
+            stmt.setString(index, transactionDate.trim());
+        }
+
+        return stmt;
+    }
+
     // Lấy danh sách tất cả giao dịch có phân trang
     public List<TransactionDTO> searchTransactions(String customerName, String phoneNumber, String date, int page, int pageSize) {
         List<TransactionDTO> transactions = new ArrayList<>();
-        
+
         // Tạo truy vấn động
         StringBuilder query = new StringBuilder("""
                 SELECT t.TransactionID, t.TransactionType, r.RiceName, c.FullName AS CustomerName, 
@@ -59,8 +108,7 @@ public class TransactionDAO extends GenericDAO<Transaction> {
         params.add((page - 1) * pageSize);
         params.add(pageSize);
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query.toString())) {
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query.toString())) {
 
             // Gán tham số vào PreparedStatement
             for (int i = 0; i < params.size(); i++) {
