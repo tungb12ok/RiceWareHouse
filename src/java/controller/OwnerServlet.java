@@ -4,24 +4,24 @@
  */
 package controller;
 
+import dao.StaffDAO;
 import dao.UserDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import model.User;
+import java.util.List;
+import model.Staff;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "OwnerServlet", urlPatterns = {"/owner"})
+public class OwnerServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +40,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet OwnerServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet OwnerServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,7 +61,16 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/login.jsp").forward(request, response);
+        StaffDAO staffDAO = new StaffDAO();
+
+        // Fetch all staff members from the database
+        List<Staff> staffList = staffDAO.getAllStaff();
+
+        // Set the staff list as a request attribute to be accessed in the JSP
+        request.setAttribute("staffList", staffList);
+
+        // Forward the request to the JSP page for rendering
+        request.getRequestDispatcher("owner.jsp").forward(request, response);
     }
 
     /**
@@ -75,37 +84,18 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.login(username, password);
-
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-
-            if ("on".equals(request.getParameter("rememberPassword"))) {
-                Cookie usernameCookie = new Cookie("username", username);
-                usernameCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(usernameCookie);
-
-                Cookie passwordCookie = new Cookie("password", password);
-                passwordCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(passwordCookie);
-            }
-
-            if ("Admin".equals(user.getRole())) {
-                response.sendRedirect("admin.jsp");
+        String action = request.getParameter("action");
+        if ("delete".equals(action)) {
+            int staffId = Integer.parseInt(request.getParameter("userId"));
+            StaffDAO staffDAO = new StaffDAO();
+            boolean deleted = staffDAO.deleteStaff(staffId);
+            if (deleted) {
+                response.sendRedirect("owner");
             } else {
-                response.sendRedirect("owner.jsp");
+                request.setAttribute("errorMessage", "Error deleting user.");
+                request.getRequestDispatcher("owner.jsp").forward(request, response);
             }
-
-        } else {
-            request.setAttribute("errorMessage", "Invalid username or password");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
-
     }
 
     /**

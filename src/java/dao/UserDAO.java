@@ -4,23 +4,8 @@ import DBContext.DatabaseConnection;
 import model.User;
 import java.sql.*;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class UserDAO extends GenericDAO<User> {
-
-    public static UserDAO INSTANCE = new UserDAO();
-    private Connection con;
-    
-    public UserDAO() {
-         if (INSTANCE == null) {
-            try {
-                con = DatabaseConnection.getConnection();
-            } catch (SQLException e) {
-                Logger.getLogger(UserDAO.class.getName()).log(Level.SEVERE, null, e.getMessage());
-            }
-        }
-    }
 
     @Override
     protected User mapResultSetToEntity(ResultSet rs) throws SQLException {
@@ -42,13 +27,33 @@ public class UserDAO extends GenericDAO<User> {
         return getAll("SELECT * FROM Users");
     }
 
+    public List<User> getAllUsersByRoleOwner() {
+        return getAll("SELECT * FROM Users WHERE Role = 'Owner'");
+    }
+
+    public boolean checkUsernameExists(String username) {
+        String query = "SELECT COUNT(*) FROM Users WHERE Username = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;  
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;  
+    }
+
     public boolean insertUser(User user) {
         return executeUpdate("INSERT INTO Users (FullName, PhoneNumber, Address, StoreName, Username, PasswordHash, Role, Email, IsBanned) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 user.getFullName(), user.getPhoneNumber(), user.getAddress(), user.getStoreName(), user.getUsername(), user.getPasswordHash(), user.getRole(), user.getEmail(), user.isBanned());
     }
 
     public boolean updateUser(User user) {
-        return executeUpdate("UPDATE Users SET FullName=?, PhoneNumber=?, Address=?, StoreName=?, Username=?, PasswordHash=?, Role=?, Email=?, IsBanned=? WHERE UserID=?",
+        return executeUpdate("UPDATE Users SET FullName=?, PhoneNumber=?, Address=?, StoreName=?, Username=?, PasswordHash=?, Role=?, Email=?, IsBanned=? WHERE UserID = ?",
                 user.getFullName(), user.getPhoneNumber(), user.getAddress(), user.getStoreName(), user.getUsername(), user.getPasswordHash(), user.getRole(), user.getEmail(), user.isBanned(), user.getUserId());
     }
 
@@ -64,7 +69,7 @@ public class UserDAO extends GenericDAO<User> {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                String storedPassword = rs.getString("PasswordHash"); 
+                String storedPassword = rs.getString("PasswordHash");
                 if (password.equals(storedPassword)) {
                     return mapResultSetToEntity(rs);
                 }
@@ -75,18 +80,25 @@ public class UserDAO extends GenericDAO<User> {
         return null;
     }
 
+    public User getUserById(int userId) {
+        String query = "SELECT * FROM Users WHERE UserID = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToEntity(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static void main(String[] args) {
         UserDAO userDAO = new UserDAO();
-        
-        String username = "owner";
-        String password = "hashed_password2"; 
-        
-        User user = userDAO.login(username, password);
-        
-        if (user != null) {
-            System.out.println(user.getFullName());
-        } else {
-            System.out.println("Invalid username or password.");
-        }
+        System.out.println(userDAO.getAllUsers());
+
     }
 }

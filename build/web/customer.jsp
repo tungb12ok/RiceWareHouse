@@ -24,56 +24,60 @@
         <%@include file="/components/header.jsp"%>
 
         <div id="layoutSidenav">
-
             <%@include file="/components/sidebar.jsp"%>
-
+            
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Admin Dashboard</h1>
-                        <a href="createOwner.jsp" class="btn btn-primary btn-info mb-4">Create Owner</a>
+                        <h1 class="mt-4">Customer List</h1>
+
+                        <!-- Customer Table -->
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table me-1"></i>
-                                Owner Management
+                                Customer Management
                             </div>
                             <div class="card-body">
                                 <table id="datatablesSimple">
                                     <thead>
                                         <tr>
-                                            <th>User ID</th>
+                                            <th>Customer ID</th>
                                             <th>Full Name</th>
-                                            <th>Username</th>
+                                            <th>Gender</th>
+                                            <th>Age</th>
+                                            <th>Address</th>
                                             <th>Phone Number</th>
-                                            <th>Email</th>
-                                            <th>Role</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
                                         <tr>
-                                            <th>User ID</th>
+                                            <th>Customer ID</th>
                                             <th>Full Name</th>
-                                            <th>Username</th>
+                                            <th>Gender</th>
+                                            <th>Age</th>
+                                            <th>Address</th>
                                             <th>Phone Number</th>
-                                            <th>Email</th>
-                                            <th>Role</th>
                                             <th>Actions</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>
-                                        <c:forEach var="user" items="${users}">
+                                        <!-- Displaying customers -->
+                                        <c:forEach var="customer" items="${customers}">
                                             <tr>
-                                                <td>${user.userId}</td>
-                                                <td>${user.fullName}</td>
-                                                <td>${user.username}</td>
-                                                <td>${user.phoneNumber}</td>
-                                                <td>${user.email}</td>
-                                                <td>${user.role}</td>
+                                                <td>${customer.customerId}</td>
+                                                <td>${customer.fullName}</td>
+                                                <td>${customer.gender}</td>
+                                                <td>${customer.age}</td>
+                                                <td>${customer.address}</td>
+                                                <td>${customer.phoneNumber}</td>
                                                 <td>
-                                                    <a href="editUser?userId=${user.userId}" class="btn btn-primary btn-sm">Edit</a>
+                                                    <!-- Edit Button -->
+                                                    <a href="editCustomer?customerId=${customer.customerId}" class="btn btn-primary btn-sm">Edit</a>
+
+                                                    <!-- Delete Button -->
                                                     <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" 
-                                                            onclick="setDeleteUser(${user.userId}, '${user.fullName}')">
+                                                            onclick="setDeleteUser(${customer.customerId}, '${customer.fullName}')">
                                                         Delete
                                                     </button>
                                                 </td>
@@ -85,30 +89,28 @@
                         </div>
                     </div>
                 </main>
+            </div>
+        </div>
 
-                <!-- Delete Modal -->
-                <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form method="post" action="admin?action=delete">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Are you sure you want to delete the user <strong id="deleteUserName"></strong>?</p>
-                                    <input type="hidden" id="deleteUserId" name="userId">
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                </div>
-                            </form>
+        <!-- Delete Modal -->
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="post" action="customer">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                    </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete the customer <strong id="deleteCustomerName"></strong>?</p>
+                            <input type="hidden" id="deleteCustomerId" name="customerId">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                    </form>
                 </div>
-
-                <%@include file="/components/footer.jsp"%>
             </div>
         </div>
 
@@ -120,12 +122,12 @@
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="js/datatables-simple-demo.js"></script>
         <script>
-
-
-                                                                function setDeleteUser(userId, fullName) {
-                                                                    document.getElementById('deleteUserId').value = userId;
-                                                                    document.getElementById('deleteUserName').textContent = fullName;
+                                                                // Function to set the user details for deletion
+                                                                function setDeleteUser(customerId, fullName) {
+                                                                    document.getElementById('deleteCustomerId').value = customerId;
+                                                                    document.getElementById('deleteCustomerName').textContent = fullName;
                                                                 }
         </script>
+
     </body>
 </html>

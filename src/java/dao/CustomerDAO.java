@@ -1,0 +1,83 @@
+package dao;
+
+import DBContext.DatabaseConnection;
+import model.Customer;
+import java.sql.*;
+import java.util.List;
+
+public class CustomerDAO extends GenericDAO<Customer> {
+
+    @Override
+    protected Customer mapResultSetToEntity(ResultSet rs) throws SQLException {
+        Customer customer = new Customer();
+        customer.setCustomerId(rs.getInt("CustomerID"));
+        customer.setFullName(rs.getString("FullName"));
+        customer.setGender(rs.getString("Gender"));
+        customer.setAge(rs.getInt("Age"));
+        customer.setAddress(rs.getString("Address"));
+        customer.setPhoneNumber(rs.getString("PhoneNumber"));
+        return customer;
+    }
+
+    // Method to get all customers
+    public List<Customer> getAllCustomers() {
+        return getAll("SELECT * FROM Customers");
+    }
+
+    // Method to get customer by ID
+    public Customer getCustomerById(int customerId) {
+        String query = "SELECT * FROM Customers WHERE CustomerID = ?";
+        try (Connection conn = DatabaseConnection.getConnection(); 
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, customerId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return mapResultSetToEntity(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Method to add a new customer
+    public boolean addCustomer(Customer customer) {
+        String query = "INSERT INTO Customers (FullName, Gender, Age, Address, PhoneNumber) VALUES (?, ?, ?, ?, ?)";
+        return executeUpdate(query, 
+                customer.getFullName(), 
+                customer.getGender(), 
+                customer.getAge(), 
+                customer.getAddress(), 
+                customer.getPhoneNumber());
+    }
+
+    // Method to update customer information
+    public boolean updateCustomer(Customer customer) {
+        String query = "UPDATE Customers SET FullName = ?, Gender = ?, Age = ?, Address = ?, PhoneNumber = ? WHERE CustomerID = ?";
+        return executeUpdate(query, 
+                customer.getFullName(), 
+                customer.getGender(),
+                customer.getAge(), 
+                customer.getAddress(), 
+                customer.getPhoneNumber(),
+                customer.getCustomerId());
+    }
+
+    // Method to delete customer by ID
+    public boolean deleteCustomer(int customerId) {
+        String query = "DELETE FROM Customers WHERE CustomerID = ?";
+        return executeUpdate(query, customerId);
+    }
+
+    // Example usage for testing
+    public static void main(String[] args) {
+        CustomerDAO customerDAO = new CustomerDAO();
+        
+        // Testing: Get all customers
+        List<Customer> customers = customerDAO.getAllCustomers();
+        for (Customer customer : customers) {
+            System.out.println(customer.getFullName());
+        }
+    }
+}

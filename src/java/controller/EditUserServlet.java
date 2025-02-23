@@ -9,19 +9,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import model.User;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "EditUserServlet", urlPatterns = {"/editUser"})
+public class EditUserServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +38,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet EditUserServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet EditUserServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,7 +59,18 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/login.jsp").forward(request, response);
+        String userId = request.getParameter("userId");
+
+        if (userId != null) {
+            UserDAO userDAO = new UserDAO();
+            User user = userDAO.getUserById(Integer.parseInt(userId));
+
+            request.setAttribute("user", user);
+
+            request.getRequestDispatcher("edituser.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("admin");
+        }
     }
 
     /**
@@ -75,37 +84,29 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        int userId = Integer.parseInt(request.getParameter("userId"));
+        String fullName = request.getParameter("fullName");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String email = request.getParameter("email");
+        String role = request.getParameter("role");
+        boolean isBanned = Boolean.parseBoolean(request.getParameter("status")); 
 
         UserDAO userDAO = new UserDAO();
-        User user = userDAO.login(username, password);
+        User user = userDAO.getUserById(userId);
+        user.setFullName(fullName);
+        user.setPhoneNumber(phoneNumber);
+        user.setEmail(email);
+        user.setRole(role);
+        user.setBanned(isBanned);
 
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
+        boolean updated = userDAO.updateUser(user);
 
-            if ("on".equals(request.getParameter("rememberPassword"))) {
-                Cookie usernameCookie = new Cookie("username", username);
-                usernameCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(usernameCookie);
-
-                Cookie passwordCookie = new Cookie("password", password);
-                passwordCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(passwordCookie);
-            }
-
-            if ("Admin".equals(user.getRole())) {
-                response.sendRedirect("admin.jsp");
-            } else {
-                response.sendRedirect("owner.jsp");
-            }
-
+        if (updated) {
+            response.sendRedirect("admin");
         } else {
-            request.setAttribute("errorMessage", "Invalid username or password");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            request.setAttribute("errorMessage", "Failed to update user.");
+            request.getRequestDispatcher("edituser.jsp").forward(request, response);
         }
-
     }
 
     /**
