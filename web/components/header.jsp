@@ -19,7 +19,7 @@
             <a class="navbar-brand ps-3" href="home">Warehouse Rice</a>
             <a class="navbar-brand" href="admin">Employee</a>
             <a class="navbar-brand" href="warehouserice">Warehouse Rice</a>
-            <a class="navbar-brand" href="index.html">Debt</a>
+            <a class="navbar-brand" href="DebtController">Debt</a>
             <a class="navbar-brand" href="index.html">Rice</a>
             <a class="navbar-brand"  href="index.html">Porter</a>
             <a class="navbar-brand" href="PaymentController">Transaction History</a>

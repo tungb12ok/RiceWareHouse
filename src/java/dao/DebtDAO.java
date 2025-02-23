@@ -154,4 +154,53 @@ public class DebtDAO extends GenericDAO<Debt> {
     public boolean deleteDebt(int debtId) {
         return executeUpdate("DELETE FROM Debts WHERE DebtID = ?", debtId);
     }
+
+    public boolean updateDebt(Debt debt) {
+        String query = """
+                UPDATE Debts 
+                SET DebtType = ?, Amount = ?, Note = ?, DebtDate = ? 
+                WHERE DebtID = ?
+            """;
+
+        return executeUpdate(query,
+                debt.getDebtType(),
+                debt.getAmount(),
+                debt.getNote(),
+                new java.sql.Timestamp(debt.getDebtDate().getTime()),
+                debt.getDebtId()
+        );
+    }
+
+    public static void main(String[] args) {
+        DebtDAO debtDAO = new DebtDAO();
+
+        // Test tìm kiếm công nợ theo số điện thoại
+        System.out.println("🔍 Test: Tìm kiếm theo số điện thoại '0987654321'");
+        List<DebtDTO> debtsByPhone = debtDAO.searchDebts("0987654321", null, 1, 5);
+        for (DebtDTO debt : debtsByPhone) {
+            System.out.println(debt);
+        }
+
+        // Test tìm kiếm công nợ theo ngày cụ thể
+        System.out.println("\n🔍 Test: Tìm kiếm theo ngày '2025-02-20'");
+        List<DebtDTO> debtsByDate = debtDAO.searchDebts(null, "2025-02-20", 1, 5);
+        for (DebtDTO debt : debtsByDate) {
+            System.out.println(debt);
+        }
+
+        // Test tìm kiếm kết hợp số điện thoại và ngày
+        System.out.println("\n🔍 Test: Tìm kiếm theo số điện thoại '0987654321' và ngày '2025-02-20'");
+        List<DebtDTO> debtsCombined = debtDAO.searchDebts("0987654321", "2025-02-20", 1, 5);
+        for (DebtDTO debt : debtsCombined) {
+            System.out.println(debt);
+        }
+
+        // Test phân trang
+        System.out.println("\n📌 Test: Phân trang - Trang 2, mỗi trang 5 bản ghi");
+        List<DebtDTO> debtsPaged = debtDAO.searchDebts(null, null, 2, 5);
+        for (DebtDTO debt : debtsPaged) {
+            System.out.println(debt);
+        }
+    }
+
 }
