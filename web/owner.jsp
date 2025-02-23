@@ -30,50 +30,44 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <h1 class="mt-4">Admin Dashboard</h1>
-                        <a href="createOwner.jsp" class="btn btn-primary btn-info mb-4">Create Owner</a>
+                        <h1 class="mt-4">Owner Dashboard</h1>
+                        <a href="createStaff.jsp" class="btn btn-primary btn-info mb-4">Create Staff</a>
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table me-1"></i>
-                                Owner Management
+                                Staff Management
                             </div>
                             <div class="card-body">
                                 <table id="datatablesSimple">
                                     <thead>
                                         <tr>
-                                            <th>User ID</th>
+                                            <th>Staff ID</th>
                                             <th>Full Name</th>
-                                            <th>Username</th>
                                             <th>Phone Number</th>
-                                            <th>Email</th>
-                                            <th>Role</th>
+                                            <th>Username</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tfoot>
                                         <tr>
-                                            <th>User ID</th>
+                                            <th>Staff ID</th>
                                             <th>Full Name</th>
-                                            <th>Username</th>
                                             <th>Phone Number</th>
-                                            <th>Email</th>
-                                            <th>Role</th>
+                                            <th>Username</th>
                                             <th>Actions</th>
                                         </tr>
                                     </tfoot>
                                     <tbody>
-                                        <c:forEach var="user" items="${users}">
+                                        <c:forEach var="staff" items="${staffList}">
                                             <tr>
-                                                <td>${user.userId}</td>
-                                                <td>${user.fullName}</td>
-                                                <td>${user.username}</td>
-                                                <td>${user.phoneNumber}</td>
-                                                <td>${user.email}</td>
-                                                <td>${user.role}</td>
+                                                <td>${staff.staffId}</td>
+                                                <td>${staff.fullName}</td>
+                                                <td>${staff.phoneNumber}</td>
+                                                <td>${staff.username}</td>
                                                 <td>
-                                                    <a href="editUser?userId=${user.userId}" class="btn btn-primary btn-sm">Edit</a>
+                                                    <a href="editStaff?staffId=${staff.staffId}" class="btn btn-primary btn-sm">Edit</a>
                                                     <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" 
-                                                            onclick="setDeleteUser(${user.userId}, '${user.fullName}')">
+                                                            onclick="setDeleteUser(${staff.staffId}, '${staff.fullName}')">
                                                         Delete
                                                     </button>
                                                 </td>
@@ -90,7 +84,7 @@
                 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                            <form method="post" action="admin?action=delete">
+                            <form method="post" action="owner?action=delete">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

@@ -4,24 +4,22 @@
  */
 package controller;
 
-import dao.UserDAO;
+import dao.StaffDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import model.User;
+import model.Staff;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "CreateStaffServlet", urlPatterns = {"/createStaff"})
+public class CreateStaffServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +38,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet CreateStaffServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CreateStaffServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,7 +59,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/login.jsp").forward(request, response);
+        request.getRequestDispatcher("createStaff.jsp").forward(request, response);
     }
 
     /**
@@ -75,37 +73,37 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String fullName = request.getParameter("fullName");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String address = request.getParameter("address");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.login(username, password);
-
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-
-            if ("on".equals(request.getParameter("rememberPassword"))) {
-                Cookie usernameCookie = new Cookie("username", username);
-                usernameCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(usernameCookie);
-
-                Cookie passwordCookie = new Cookie("password", password);
-                passwordCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(passwordCookie);
-            }
-
-            if ("Admin".equals(user.getRole())) {
-                response.sendRedirect("admin.jsp");
-            } else {
-                response.sendRedirect("owner.jsp");
-            }
-
-        } else {
-            request.setAttribute("errorMessage", "Invalid username or password");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+        String ownerId = request.getParameter("ownerId");
+        
+        StaffDAO staffDAO = new StaffDAO();
+        boolean usernameExists = staffDAO.checkUsernameExists(username);
+        if (usernameExists) {
+            request.setAttribute("errorMessage", "Username already exists. Please choose another one.");
+            request.getRequestDispatcher("createStaff.jsp").forward(request, response);
+            return;
         }
 
+        Staff staff = new Staff();
+        staff.setFullName(fullName);
+        staff.setPhoneNumber(phoneNumber);
+        staff.setAddress(address);
+        staff.setUsername(username);
+        staff.setPasswordHash(password);
+        staff.setOwnerId(Integer.parseInt(ownerId));
+
+        boolean success = staffDAO.insertStaff(staff);
+
+        if (success) {
+            response.sendRedirect("owner");
+        } else {
+            request.setAttribute("errorMessage", "Failed to create staff.");
+            request.getRequestDispatcher("createStaff.jsp").forward(request, response);
+        }
     }
 
     /**

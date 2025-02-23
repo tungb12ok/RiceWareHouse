@@ -9,19 +9,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import model.User;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "CreateOwnerServlet", urlPatterns = {"/createOwner"})
+public class CreateOwnerServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +38,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet createUserServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet createUserServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,7 +59,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/login.jsp").forward(request, response);
+        request.getRequestDispatcher("createOwner.jsp").forward(request, response);
     }
 
     /**
@@ -75,37 +73,42 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String fullName = request.getParameter("fullName");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String address = request.getParameter("address");
+        String storeName = request.getParameter("storeName");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+        String email = request.getParameter("email");
+        String role = request.getParameter("role");
+        boolean isBanned = Boolean.parseBoolean(request.getParameter("status"));
 
         UserDAO userDAO = new UserDAO();
-        User user = userDAO.login(username, password);
-
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-
-            if ("on".equals(request.getParameter("rememberPassword"))) {
-                Cookie usernameCookie = new Cookie("username", username);
-                usernameCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(usernameCookie);
-
-                Cookie passwordCookie = new Cookie("password", password);
-                passwordCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(passwordCookie);
-            }
-
-            if ("Admin".equals(user.getRole())) {
-                response.sendRedirect("admin.jsp");
-            } else {
-                response.sendRedirect("owner.jsp");
-            }
-
-        } else {
-            request.setAttribute("errorMessage", "Invalid username or password");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+        if (userDAO.checkUsernameExists(username)) {
+            request.setAttribute("errorMessage", "Username already exists. Please choose a different one.");
+            request.getRequestDispatcher("createOwner.jsp").forward(request, response);
+            return;
         }
 
+        User user = new User();
+        user.setFullName(fullName);
+        user.setPhoneNumber(phoneNumber);
+        user.setAddress(address);
+        user.setStoreName(storeName);
+        user.setUsername(username);
+        user.setPasswordHash(password);
+        user.setRole(role);
+        user.setEmail(email);
+        user.setBanned(isBanned);
+
+        boolean success = userDAO.insertUser(user);
+
+        if (success) {
+            response.sendRedirect("admin");
+        } else {
+            request.setAttribute("errorMessage", "Failed to create user.");
+            request.getRequestDispatcher("createUser.jsp").forward(request, response);
+        }
     }
 
     /**

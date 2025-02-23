@@ -4,24 +4,22 @@
  */
 package controller;
 
-import dao.UserDAO;
+import dao.CustomerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import model.User;
+import model.Customer;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "EditCustomerServlet", urlPatterns = {"/editCustomer"})
+public class EditCustomerServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +38,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet EditCustomerServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet EditCustomerServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,51 +59,52 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/login.jsp").forward(request, response);
+        int customerId = Integer.parseInt(request.getParameter("customerId"));
+
+        // Retrieve customer details from the database
+        CustomerDAO customerDAO = new CustomerDAO();
+        Customer customer = customerDAO.getCustomerById(customerId);
+
+        if (customer != null) {
+            // Set the customer data as a request attribute
+            request.setAttribute("customer", customer);
+            // Forward the request to the editCustomer.jsp
+            request.getRequestDispatcher("editcustomer.jsp").forward(request, response);
+        } else {
+            response.sendRedirect("customer");  // Redirect to customer list if not found
+        }
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
+        // Get updated customer details from the form
+        int customerId = Integer.parseInt(request.getParameter("customerId"));
+        String fullName = request.getParameter("fullName");
+        String gender = request.getParameter("gender");
+        int age = Integer.parseInt(request.getParameter("age"));
+        String address = request.getParameter("address");
+        String phoneNumber = request.getParameter("phoneNumber");
 
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.login(username, password);
+        // Create a customer object
+        Customer customer = new Customer();
+        customer.setCustomerId(customerId);
+        customer.setFullName(fullName);
+        customer.setGender(gender);
+        customer.setAge(age);
+        customer.setAddress(address);
+        customer.setPhoneNumber(phoneNumber);
 
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
+        // Update customer details in the database
+        CustomerDAO customerDAO = new CustomerDAO();
+        boolean success = customerDAO.updateCustomer(customer);
 
-            if ("on".equals(request.getParameter("rememberPassword"))) {
-                Cookie usernameCookie = new Cookie("username", username);
-                usernameCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(usernameCookie);
-
-                Cookie passwordCookie = new Cookie("password", password);
-                passwordCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(passwordCookie);
-            }
-
-            if ("Admin".equals(user.getRole())) {
-                response.sendRedirect("admin.jsp");
-            } else {
-                response.sendRedirect("owner.jsp");
-            }
-
+        if (success) {
+            response.sendRedirect("customer");  // Redirect to the customer list after successful update
         } else {
-            request.setAttribute("errorMessage", "Invalid username or password");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            request.setAttribute("errorMessage", "Failed to update customer.");
+            request.getRequestDispatcher("editcustomer.jsp").forward(request, response);
         }
-
     }
 
     /**

@@ -5,22 +5,22 @@
 
 package controller;
 
-import dao.UserDAO;
+import dao.StaffDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import model.User;
+import model.Staff;
 
 /**
  *
  * @author Admin
  */
-public class TestServlet extends HttpServlet {
+@WebServlet(name="EditStaffServlet", urlPatterns={"/editStaff"})
+public class EditStaffServlet extends HttpServlet {
    
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -37,10 +37,10 @@ public class TestServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet TestServlet</title>");  
+            out.println("<title>Servlet EditStaffServlet</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet TestServlet at " + request.getContextPath () + "</h1>");
+            out.println("<h1>Servlet EditStaffServlet at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -56,48 +56,53 @@ public class TestServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
-    } 
+            throws ServletException, IOException {
+        // Retrieve staffId from request
+        int staffId = Integer.parseInt(request.getParameter("staffId"));
+        
+        // Fetch staff details by staffId
+        StaffDAO staffDAO = new StaffDAO();
+        Staff staff = staffDAO.getStaffById(staffId);
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+        // Set the staff object as request attribute
+        request.setAttribute("staff", staff);
+
+        // Forward the request to editStaff.jsp
+        request.getRequestDispatcher("editstaff.jsp").forward(request, response);
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
+        // Retrieve updated staff details from form
+        int staffId = Integer.parseInt(request.getParameter("staffId"));
+        String fullName = request.getParameter("fullName");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String address = request.getParameter("address");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-        PrintWriter out = response.getWriter();
+        String ownerId = request.getParameter("ownerId"); // Owner ID can be passed or handled as needed
+        
+        // Create Staff object with updated details
+        Staff staff = new Staff();
+        staff.setStaffId(staffId);
+        staff.setFullName(fullName);
+        staff.setPhoneNumber(phoneNumber);
+        staff.setAddress(address);
+        staff.setUsername(username);
+        staff.setPasswordHash(password); // Hash the password before saving it
+        staff.setOwnerId(Integer.parseInt(ownerId));
 
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.login(username, password);
+        // Call the DAO method to update the staff record
+        StaffDAO staffDAO = new StaffDAO();
+        boolean updated = staffDAO.updateStaff(staff);
 
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-
-            if ("on".equals(request.getParameter("rememberPassword"))) {
-                Cookie usernameCookie = new Cookie("username", username);
-                usernameCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(usernameCookie);
-
-                Cookie passwordCookie = new Cookie("password", password);
-                passwordCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(passwordCookie);
-            }
-
-            if ("Admin".equals(user.getRole())) {
-                response.sendRedirect("admin.jsp");
-            }
-
+        // Redirect based on update success or failure
+        if (updated) {
+            response.sendRedirect("owner");  // Redirect to the owner dashboard or staff list
         } else {
-            request.setAttribute("errorMessage", "Invalid username or password");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            request.setAttribute("errorMessage", "Failed to update staff.");
+            request.getRequestDispatcher("editStaff.jsp").forward(request, response);
         }
     }
 

@@ -9,19 +9,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import model.User;
 
 /**
  *
  * @author Admin
  */
-@WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
-public class LoginServlet extends HttpServlet {
+@WebServlet(name = "AdminServlet", urlPatterns = {"/admin"})
+public class AdminServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -40,10 +39,10 @@ public class LoginServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginServlet</title>");
+            out.println("<title>Servlet AdminServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet AdminServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -61,7 +60,10 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/login.jsp").forward(request, response);
+        UserDAO userDAO = new UserDAO();
+        List<User> users = userDAO.getAllUsersByRoleOwner();
+        request.setAttribute("users", users);
+        request.getRequestDispatcher("admin.jsp").forward(request, response);
     }
 
     /**
@@ -75,37 +77,18 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.login(username, password);
-
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-
-            if ("on".equals(request.getParameter("rememberPassword"))) {
-                Cookie usernameCookie = new Cookie("username", username);
-                usernameCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(usernameCookie);
-
-                Cookie passwordCookie = new Cookie("password", password);
-                passwordCookie.setMaxAge(60 * 60 * 24 * 7);
-                response.addCookie(passwordCookie);
-            }
-
-            if ("Admin".equals(user.getRole())) {
-                response.sendRedirect("admin.jsp");
+        String action = request.getParameter("action");
+        if ("delete".equals(action)) {
+            int userId = Integer.parseInt(request.getParameter("userId"));
+            UserDAO userDAO = new UserDAO();
+            boolean deleted = userDAO.deleteUser(userId);
+            if (deleted) {
+                response.sendRedirect("admin");
             } else {
-                response.sendRedirect("owner.jsp");
+                request.setAttribute("errorMessage", "Error deleting user.");
+                request.getRequestDispatcher("admin.jsp").forward(request, response);
             }
-
-        } else {
-            request.setAttribute("errorMessage", "Invalid username or password");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
-
     }
 
     /**
