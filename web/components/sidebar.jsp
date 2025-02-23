@@ -84,7 +84,7 @@
                 </div>
                 <div class="sb-sidenav-footer">
                     <div class="small">Logged in as:</div>
-                    Start Bootstrap
+                    Welcome, <span>${sessionScope.user.fullName}
                 </div>
             </nav>
         </div>
