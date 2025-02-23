@@ -25,7 +25,7 @@
 
         <div id="layoutSidenav">
             <%@include file="/components/sidebar.jsp"%>
-            
+
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
@@ -96,7 +96,7 @@
         <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form method="post" action="customer">
+                    <form method="post" action="customer?action=delete">
                         <div class="modal-header">
                             <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -114,6 +114,7 @@
             </div>
         </div>
 
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="js/scripts.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
@@ -122,11 +123,11 @@
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
         <script src="js/datatables-simple-demo.js"></script>
         <script>
-                                                                // Function to set the user details for deletion
                                                                 function setDeleteUser(customerId, fullName) {
                                                                     document.getElementById('deleteCustomerId').value = customerId;
                                                                     document.getElementById('deleteCustomerName').textContent = fullName;
                                                                 }
+
         </script>
 
     </body>
