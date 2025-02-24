@@ -26,18 +26,10 @@ public class CustomerDAO extends GenericDAO<Customer> {
 
     // Method to get customer by ID
     public Customer getCustomerById(int customerId) {
-        String query = "SELECT * FROM Customers WHERE CustomerID = ?";
-        try (Connection conn = DatabaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setInt(1, customerId);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return mapResultSetToEntity(rs);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return getAllWithParams("SELECT * FROM Customers WHERE CustomerID = ?", customerId)
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     // Method to add a new customer
@@ -108,5 +100,12 @@ public class CustomerDAO extends GenericDAO<Customer> {
         for (Customer customer : customers) {
             System.out.println(customer.getFullName());
         }
+    }
+
+    public Customer getCustomerByPhone(String phoneNumber) {
+        return getAllWithParams("SELECT * FROM Customers WHERE PhoneNumber = ?", phoneNumber)
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 }
