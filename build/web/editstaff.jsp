@@ -12,7 +12,7 @@
         <%@include file="/components/header.jsp"%>
 
         <div class="container-fluid px-4">
-            <a href="owner" class="btn btn-secondary mb-3">Back to List</a>
+            <a href="staff" class="btn btn-secondary mb-3">Back to List</a>
             <h1 class="mt-4">Edit Staff</h1>
             <form method="post" action="editStaff">
                 <input type="hidden" name="staffId" value="${staff.staffId}" />

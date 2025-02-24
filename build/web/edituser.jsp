@@ -21,7 +21,7 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                        <a href="owner" class="btn btn-secondary mb-3">Back to List</a> 
+                        <a href="admin" class="btn btn-secondary mb-3">Back to List</a> 
                         <h1 class="mt-4">Edit User</h1>
                         <p class="text-danger">
                             <c:if test="${not empty errorMessage}">
@@ -60,10 +60,11 @@
                                     <div class="mb-3">
                                         <label for="status" class="form-label">Status</label>
                                         <select class="form-control" id="status" name="status" required>
-                                            <option value="false">Active</option>
-                                            <option value="true">Banned</option>
+                                            <option value="false" ${!status ? 'selected' : ''}>Active</option>
+                                            <option value="true" ${status ? 'selected' : ''}>Banned</option>
                                         </select>
                                     </div>
+
 
                                     <div class="mb-3">
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
