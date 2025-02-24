@@ -16,29 +16,31 @@
     </head>
     <body>
         <nav class="sb-topnav navbar navbar-expand navbar-dark">
-            <a class="navbar-brand ps-3" href="home">
-                <i class="fas fa-warehouse me-2"></i>Warehouse Rice
-            </a>
             <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
                 <i class="fas fa-bars"></i>
             </button>
+            <a class="navbar-brand ps-3" href="home">
+                <i class="fas fa-warehouse me-2"></i>Warehouse Rice
+            </a>
 
             <!-- Menu phân loại -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <!-- Nhóm Quản lý Nhân sự -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle ps-5" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-users me-1"></i> Personnel
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="admin">Employee</a></li>
+                            <li><a class="dropdown-item" href="admin">Admin</a></li>
+                            <li><a class="dropdown-item" href="owner">Owner</a></li>
+                            <li><a class="dropdown-item" href="customer">Customer</a></li>
                             <li><a class="dropdown-item" href="index.html">Porter</a></li>
                         </ul>
                     </li>
                     <!-- Nhóm Quản lý Kho -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle ps-5" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-box me-1"></i> Warehouse
                         </a>
                         <ul class="dropdown-menu">
@@ -48,7 +50,7 @@
                     </li>
                     <!-- Nhóm Giao dịch Tài chính -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle ps-5" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="fas fa-dollar-sign me-1"></i> Finance
                         </a>
                         <ul class="dropdown-menu">

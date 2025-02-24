@@ -29,7 +29,7 @@
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4">Admin Dashboard</h1>
-                        <a href="createOwner.jsp" class="btn btn-primary btn-info mb-4">Create Owner</a>
+<!--                        <a href="createOwner.jsp" class="btn btn-primary btn-info mb-4">Create Owner</a>-->
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-table me-1"></i>

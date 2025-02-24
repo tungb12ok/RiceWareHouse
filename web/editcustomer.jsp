@@ -18,7 +18,6 @@
             <div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
-                         <a href="customer" class="btn btn-secondary mb-3">Back to List</a>
                         <h1 class="mt-4">Edit Customer</h1>
                         <div class="card mb-4">
                             <div class="card-header">
@@ -65,6 +64,7 @@
                                     <!-- Submit Button -->
                                     <div class="mb-3">
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        <a href="customer" class="btn btn-secondary">Back to List</a>
                                     </div>
                                 </form>
                             </div>

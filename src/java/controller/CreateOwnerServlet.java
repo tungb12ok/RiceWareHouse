@@ -104,7 +104,7 @@ public class CreateOwnerServlet extends HttpServlet {
         boolean success = userDAO.insertUser(user);
 
         if (success) {
-            response.sendRedirect("admin");
+            response.sendRedirect("login");
         } else {
             request.setAttribute("errorMessage", "Failed to create user.");
             request.getRequestDispatcher("createUser.jsp").forward(request, response);

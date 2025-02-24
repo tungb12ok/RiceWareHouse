@@ -30,7 +30,7 @@
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4">Customer List</h1>
-
+                        <a href="createCustomer.jsp" class="btn btn-primary btn-info mb-4">Create Customer</a>
                         <!-- Customer Table -->
                         <div class="card mb-4">
                             <div class="card-header">
@@ -74,7 +74,6 @@
                                                 <td>
                                                     <!-- Edit Button -->
                                                     <a href="editCustomer?customerId=${customer.customerId}" class="btn btn-primary btn-sm">Edit</a>
-
                                                     <!-- Delete Button -->
                                                     <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" 
                                                             onclick="setDeleteUser(${customer.customerId}, '${customer.fullName}')">
