@@ -38,3 +38,4 @@ nbproject/project.properties
 nbproject/private/private.properties
 src/java/DBContext/DatabaseConnection.java
 src/java/DBContext/DatabaseConnection.java
+nbproject/project.properties
